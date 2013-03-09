@@ -1,11 +1,38 @@
 #!/usr/bin/env node
 var soap = require('soap');
 var nconf = require('nconf');
+var express = require('express');
 
 
 function die(message) {
 	console.error(message);
 	process.exit();
+}
+
+function activate(client) {
+	client.GetActivationCode(
+	{
+		"Request":{
+			"SourceCredentials": {
+			"SourceName": nconf.get('source'),
+			"Password": nconf.get('key'),
+			"SiteIDs": [
+				{"int":nconf.get('siteid')}
+			]
+		}
+	}
+
+	},function(err,result){
+
+		if(err && err != null) {
+			die(err);
+		}
+
+		console.log('Activation Code: ' + result.GetActivationCodeResult[0].ActivationCode);
+		console.log('Activation Link: ' + result.GetActivationCodeResult[0].ActivationLink);
+		//console.log(result[0].Actiateion);	
+		process.exit();
+	});
 }
 
 //Load Global configurations
@@ -28,26 +55,16 @@ if(!nconf.get('key') || !nconf.get('source')) {
 }
 
 //create soap client to MindBodyOnline
-
-if()
-soap.createClient(nconf.get('wsdl'),function(err,client) {
-
-	var subs = client.describe();
-
-	client.GetActivationCode(
-	{
-		"Request":{
-			"SourceCredentials": {
-			"SourceName": nconf.get('source'),
-			"Password": nconf.get('key'),
-			"SiteIDs": [
-				{"int":"-99"}
-			]
-		}
-	}
-
-	},function(err,result){
-		console.log(result);
-		console.log(client.lastRequest);
+if(nconf.get('activate')) {
+	soap.createClient(nconf.get('wsdl'),function(err,client) {
+		activate(client);
 	});
+}
+
+// create a daemon
+var app = express();
+
+app.post('/wufoo/adduser',function(req,res) {
+	res.send(req.body);
 });
+
