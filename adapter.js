@@ -39,7 +39,7 @@ function activate(client) {
 nconf.argv().file('global','./global.json');
 
 // load the any
-nconf.file('user',nconf.get('user') || './user.json');
+nconf.file('user',nconf.get('user') || './user.json').env();
 
 if(nconf.get('help')) {
 	console.log(process.argv.join(' '));
