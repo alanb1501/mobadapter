@@ -63,8 +63,10 @@ if(nconf.get('activate')) {
 
 // create a daemon
 var app = express();
+app.use(express.bodyParser());
 
 app.post('/wufoo/adduser',function(req,res) {
+	console.log(req.body);
 	res.send(req.body);
 });
 
