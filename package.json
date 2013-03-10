@@ -6,7 +6,8 @@
   "dependencies": {
     "express":"3.0.0",
     "nconf": "~0.6.7",
-    "soap": "https://github.com/balasuar/node-soap/tarball/master"
+    "soap": "https://github.com/balasuar/node-soap/tarball/master",
+    "uuid":"1.4.x"
   },
   "engines": {
     "node": "0.8.x",

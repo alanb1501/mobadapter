@@ -1,3 +1,16 @@
 {
-	"wsdl":"https://api.mindbodyonline.com/0_5/SiteService.asmx?wsdl"
+	"wsdl":"https://api.mindbodyonline.com/0_5/SiteService.asmx?wsdl",
+	"clientWsdl":"https://api.mindbodyonline.com/0_5/ClientService.asmx?wsdl",
+	"firstName":"Field1",
+	"lastName":"Field2",
+	"addressLine1":"Field7",
+	"addressLine2":"Field8",
+	"city":"Field9",
+	"state":"Field10",
+	"zipCode":"Field11",
+	"country":"Field12",
+	"email":"Field13",
+	"phone":"Field14",
+	"rsvpClass":"Field15",
+	"referral":"Field16"
 }
