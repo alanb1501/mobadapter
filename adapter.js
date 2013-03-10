@@ -68,6 +68,11 @@ app.post('/wufoo/adduser',function(req,res) {
 	res.send(req.body);
 });
 
+app.get('*',function(req,res){
+	console.log('hi!');
+	res.end();
+})
+
 var port = process.env.PORT || 8001;
 app.listen(port, function() {
   console.log("Listening on " + port);
