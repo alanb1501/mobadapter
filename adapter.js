@@ -73,7 +73,7 @@ function activate(client) {
 	});
 }
 
-
+var userQueue = [];
 
 function addUser(client,user) {
 	client.AddOrUpdateClients({
@@ -84,9 +84,14 @@ function addUser(client,user) {
 			}]
 		}
 	},function(err,results) {
-		console.log(results);
-		//console.log(JSON.stringify(results));
-		process.exit();
+		console.log(JSON.stringify(err));
+		console.log(JSON.stringify(results));
+
+		// We have an error; queue this user and retry
+		if(results.AddOrUpdateClientsResult[0].ErrorCode !== '200') {
+			//Also email this error to Alan
+			userQueue.push(user);
+		}
 	});
 }
 
@@ -118,7 +123,7 @@ if(nconf.get('activate')) {
 if(nconf.get('testadduser')) {
 	soap.createClient(nconf.get('clientWsdl'),function(err,client) {
 		//var user = function (fname,lname,addline1,addline2,city,state,country,zip,phone,email) {
-		var u = new User("arbTest","arbTest2","1234 Anywhere","Suite 187","Renton","WA","USA","98057","5554143145","test@tempuri.org");
+		var u = new User("arbTest","arbTest2","1234 Anywhere","Suite 187","Renton","WA","USA","98057","5554143145","test-1@tempuri.org");
 		console.log(u.serialize());
 		addUser(client,u);
 	});
@@ -131,6 +136,9 @@ app.use(express.bodyParser());
 
 app.post('/wufoo/adduser',function(req,res) {
 	//todo: reduce this.
+
+	console.log(JSON.stringify(req.body));
+
 	var fName = req.body[nconf.get('firstName')];
 	var lName = req.body[nconf.get('lastName')];
 	var addLine1 = req.body[nconf.get('addressLine1')];
