@@ -14,6 +14,7 @@ var User = function (fname,lname,addLine1,addLine2,city,state,country,zip,phone,
     this.city = city;
     this.state = state;
     this.zip = zip;
+    this.country = country;
     this.phone = phone;
     this.email = email;
 }
@@ -25,7 +26,7 @@ User.prototype = {
             "FirstName": this.fname,
             "LastName":this.lname,
             "Email":this.email,
-            "AddressLine1":this.addressLine2,
+            "AddressLine1":this.addressLine1,
             "AddressLine2":this.addressLine2,
             "City":this.city,
             "State":this.state,
@@ -135,14 +136,16 @@ var app = express();
 app.use(express.bodyParser());
 
 app.post('/wufoo/adduser',function(req,res) {
-	//todo: reduce this.
+	res.send('ok!');
 
-	console.log(JSON.stringify(req.body));
+	//http://d3test.herokuapp.com/wufoo/adduser
 
 	var fName = req.body[nconf.get('firstName')];
 	var lName = req.body[nconf.get('lastName')];
+
 	var addLine1 = req.body[nconf.get('addressLine1')];
 	var addLine2 = req.body[nconf.get('addressLine2')];
+
 	var city = req.body[nconf.get('city')];
 	var state = req.body[nconf.get('state')];
 	var country = req.body[nconf.get('country')];
@@ -151,7 +154,6 @@ app.post('/wufoo/adduser',function(req,res) {
 	var phone = req.body[nconf.get('phone')];
 	var rsvp = req.body[nconf.get('rsvpClass')];
 	var referral = req.body[nconf.get('referral')];
-	res.send('ok!');
 
 	soap.createClient(nconf.get('clientWsdl'),function(err,client) {
 		//var user = function (fname,lname,addline1,addline2,city,state,country,zip,phone,email) {
