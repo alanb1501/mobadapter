@@ -138,8 +138,6 @@ app.use(express.bodyParser());
 app.post('/wufoo/adduser',function(req,res) {
 	res.send('ok!');
 
-	//http://d3test.herokuapp.com/wufoo/adduser
-
 	var fName = req.body[nconf.get('firstName')];
 	var lName = req.body[nconf.get('lastName')];
 
