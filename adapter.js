@@ -4,11 +4,12 @@ var nconf = require('nconf');
 var express = require('express');
 var uuid  = require('uuid');
 
-var User = function (fname,lname,addLine1,addLine2,city,state,country,zip,phone,email) {
+var User = function (fname,lname,birthday,addLine1,addLine2,city,state,country,zip,phone,email,emergency) {
     //todo: pull this formatting logic into a more appropriate/centralized place
     this.id = uuid.v4();
     this.fname = fname;
     this.lname = lname;
+    this.birthday = birthday.replace(/(\d{4})(\d{2})(\d{2})/,'$1-$2-$3');
     this.addressLine1 = addLine1;
     this.addressLine2 = addLine2;
     this.city = city;
@@ -17,6 +18,7 @@ var User = function (fname,lname,addLine1,addLine2,city,state,country,zip,phone,
     this.country = country;
     this.phone = phone;
     this.email = email;
+    this.emergency = emergency;
 }
 
 User.prototype = {
@@ -33,8 +35,11 @@ User.prototype = {
             "PostalCode":this.zip,
             "Country":this.country,
             "MobilePhone":this.phone,
-            "BirthDate":"1980-01-01",
-            "ReferredBy":"Web"
+            "BirthDate":this.birthday,
+            "ReferredBy":"Web",
+            "EmergencyContactInfoName": this.emergency.firstName + " " + this.emergency.lastName,
+            "EmergencyContactInfoRelationship": this.emergency.relationship,
+            "EmergencyContactInfoPhone": this.emergency.phone
         };
     }
 }
@@ -122,14 +127,23 @@ if(nconf.get('activate')) {
 }
 
 if(nconf.get('testadduser')) {
+
+	var num = Math.floor(Math.random()*90000) + 10000;
+
 	soap.createClient(nconf.get('clientWsdl'),function(err,client) {
-		//var user = function (fname,lname,addline1,addline2,city,state,country,zip,phone,email) {
-		var u = new User("arbTest","arbTest2","1234 Anywhere","Suite 187","Renton","WA","USA","98057","5554143145","test-1@tempuri.org");
+		//var User = function (fname,lname,birthday,addLine1,addLine2,city,state,country,zip,phone,email,emergency) {
+		var u = new User("arbTest","arbTest-" + num ,"19800301","1234 Anywhere",
+			"Suite 187","Renton","WA","USA","98057","5554143145",
+			"test-" + num + "@tempuri.org",{firstName: "FirstMom",
+								  lastName: "MomLast",
+								  relationship: "Mom",
+								  phone: "4255551111"
+								});
+
 		console.log(u.serialize());
 		addUser(client,u);
 	});
 }
-
 
 // create a daemon
 var app = express();
@@ -138,24 +152,35 @@ app.use(express.bodyParser());
 app.post('/wufoo/adduser',function(req,res) {
 	res.send('ok!');
 
-	var fName = req.body[nconf.get('firstName')];
-	var lName = req.body[nconf.get('lastName')];
+	function getVal(val) {
+		return req.body[nconf.get(val)];
+	}
 
-	var addLine1 = req.body[nconf.get('addressLine1')];
-	var addLine2 = req.body[nconf.get('addressLine2')];
+	var fName = getVal('firstName');
+	var lName = getVal('lastName');
 
-	var city = req.body[nconf.get('city')];
-	var state = req.body[nconf.get('state')];
-	var country = req.body[nconf.get('country')];
-	var zip = req.body[nconf.get('zipCode')];
-	var email = req.body[nconf.get('email')];
-	var phone = req.body[nconf.get('phone')];
-	var rsvp = req.body[nconf.get('rsvpClass')];
-	var referral = req.body[nconf.get('referral')];
+	var addLine1 = getVal('addressLine1');
+	var addLine2 = getVal('addressLine2');
+
+	var city = getVal('city');
+	var state = getVal('state');
+	var country = getVal('country');
+	var birthday = getVal('birthday');
+	var zip = getVal('zipCode');
+	var email = getVal('email');
+	var phone = getVal('phone');
+
+	var emergency = {
+		firstName: getVal('emergencyFirstName'),
+		lastName: getVal('emergencyLastName'),
+		relationship: getVal('emergencyRelation'),
+		phone: getVal('emergencyPhone')
+	};
 
 	soap.createClient(nconf.get('clientWsdl'),function(err,client) {
-		//var user = function (fname,lname,addline1,addline2,city,state,country,zip,phone,email) {
-		var u = new User(fName,lName,addLine1,addLine2,city,state,country,zip,phone,email);
+
+		//var User = function (fname,lname,birthday,addLine1,addLine2,city,state,country,zip,phone,email,emergency) {
+		var u = new User(fName,lName,birthday,addLine1,addLine2,city,state,country,zip,phone,email,emergency);
 		console.log(u.serialize());
 		addUser(client,u);
 	});
